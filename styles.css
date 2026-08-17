@@ -113,17 +113,24 @@ section { padding: var(--space-section-mobile) 0; }
   background: #22301a;
   box-shadow: 0 20px 50px rgba(61, 51, 40, 0.25);
 }
-.hero-video__placeholder {
+.hero-video__poster {
   position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
+  width: 100%; height: 100%; padding: 0; margin: 0;
+  background: transparent; border: 0; color: #fff; font-family: inherit;
+  pointer-events: none;
 }
+.hero-video__poster.is-blocked { pointer-events: auto; cursor: pointer; }
 .hero-video__play {
   width: 74px; height: 74px; border-radius: 50%;
   background: rgba(255,255,255,0.15);
   border: 2px solid rgba(255,255,255,0.6);
   display: flex; align-items: center; justify-content: center;
 }
+.hero-video__hint { font-size: 0.95rem; font-weight: 700; color: #fff; }
+.hero-video__consent { display: none; max-width: 260px; font-size: 0.78rem; color: rgba(255,255,255,0.75); text-align: center; }
+.hero-video__poster.is-blocked .hero-video__consent { display: block; }
 .hero-bg {
   position: relative;
   overflow: hidden;
@@ -136,13 +143,27 @@ section { padding: var(--space-section-mobile) 0; }
   transform: translateX(-50%);
   background: radial-gradient(circle at 50% 30%, rgba(118,166,50,0.16), transparent 60%);
   animation: drift 18s ease-in-out infinite alternate;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
 }
-.hero-bg > * { position: relative; z-index: 1; }
+.hero-bg > * { position: relative; z-index: 2; }
 @keyframes drift {
   from { transform: translateX(-52%) translateY(0); }
   to { transform: translateX(-48%) translateY(2%); }
+}
+
+/* Hero-Hintergrundfoto (nur Startseite), 50% Deckkraft, unter der Farb-Aura */
+.hero.hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/hero-gras-hintergrund.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .trust-line {
@@ -410,32 +431,57 @@ footer .footer-brand { font-weight: 700; color: #fff; margin-bottom: 6px; }
   .fade-in { opacity: 1; transform: none; transition: none; }
 }
 
-/* Cookie consent modal */
-.cookie-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(61, 51, 40, 0.55);
-  backdrop-filter: blur(3px);
-  padding: 20px;
+/* Cookie consent banner (nicht-blockierend) */
+.cookie-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 950;
+  background: rgba(255, 255, 255, 0.97);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -10px 30px rgba(61, 51, 40, 0.12);
+  padding: 15px 20px calc(15px + env(safe-area-inset-bottom));
 }
-.cookie-modal[hidden] { display: none; }
-.cookie-modal__box {
-  background: #fff;
-  border-radius: 18px;
-  max-width: 460px;
-  width: 100%;
-  padding: 32px 28px;
-  text-align: center;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+.cookie-bar[hidden] { display: none; }
+.cookie-bar__inner {
+  max-width: 1120px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center; gap: 14px 26px; flex-wrap: wrap;
 }
-.cookie-modal__title { font-size: 1.3rem; margin-bottom: 12px; }
-.cookie-modal p { font-size: 0.92rem; color: #55503f; }
-.cookie-modal__btns { margin: 20px 0 12px; }
-.cookie-modal__link { font-size: 0.82rem; color: #7a7062; }
+.cookie-bar__text { margin: 0; max-width: 660px; font-size: 0.85rem; line-height: 1.55; color: #55503f; }
+.cookie-bar__text a { color: var(--color-primary-dark); text-decoration: underline; text-underline-offset: 2px; }
+.cookie-bar__btns { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.cookie-bar__btn {
+  font-family: inherit; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.01em;
+  min-height: 44px; padding: 11px 26px; border-radius: 100px; border: none; cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.cookie-bar__btn--accept { background: var(--color-primary); color: #fff; box-shadow: 0 6px 18px rgba(118,166,50,0.25); }
+.cookie-bar__btn--accept:hover { background: var(--color-primary-dark); transform: translateY(-1px); }
+.cookie-bar__btn--decline { background: transparent; color: #7a7062; border: 1px solid var(--color-border); }
+.cookie-bar__btn--decline:hover { color: #55503f; border-color: #7a7062; }
+@media (max-width: 560px) {
+  .cookie-bar { padding: 13px 15px calc(13px + env(safe-area-inset-bottom)); }
+  .cookie-bar__inner { gap: 11px; }
+  .cookie-bar__btns { width: 100%; }
+  .cookie-bar__btn { flex: 1; padding: 12px 14px; }
+}
+
+/* Calendly consent-gate (Lade-Platzhalter vor dem Kalender) */
+.calendly-gate {
+  max-width: 560px; margin: 0 auto; padding: 40px 28px;
+  background: #fff; border: 1px solid var(--color-border); border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(61,51,40,0.08); text-align: center;
+}
+.calendly-gate[hidden] { display: none; }
+.calendly-gate__icon {
+  width: 60px; height: 60px; margin: 0 auto 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-primary-light); border: 1.5px solid rgba(118,166,50,0.45);
+}
+.calendly-gate__icon svg { width: 28px; height: 28px; stroke: var(--color-primary-dark); fill: none; }
+.calendly-gate__title { font-weight: 700; font-size: 1.3rem; color: var(--color-dark); margin-bottom: 8px; }
+.calendly-gate__text { color: #55503f; font-size: 0.95rem; line-height: 1.6; margin: 0 auto 22px; max-width: 420px; }
+.calendly-gate__hint { margin-top: 16px; font-size: 0.78rem; color: #7a7062; }
+.calendly-gate__hint a { color: var(--color-primary-dark); }
+.calendly-embed[hidden] { display: none; }
 
 /* Termin page */
 .termin-header { padding: 40px 0 8px; }
