@@ -13,22 +13,6 @@
 </head>
 <body>
 
-<!-- Cookie-Consent-Modal: blockierend, EIN Consent-Punkt für die ganze Seite -->
-<div id="cookie-modal" class="cookie-modal" role="dialog" aria-modal="true" aria-labelledby="cookie-title">
-  <div class="cookie-modal__box">
-    <h2 id="cookie-title" class="cookie-modal__title">Wir respektieren Ihre Privatsphäre</h2>
-    <p>Wir nutzen Cookies, um diese Website bereitzustellen und zu verbessern. Mit „Akzeptieren" stimmen Sie dem zu.</p>
-    <div class="cookie-modal__btns">
-      <button type="button" id="cookie-all" class="btn-cta">Akzeptieren</button>
-    </div>
-    <a href="/datenschutz" class="cookie-modal__link">Mehr in der Datenschutzerklärung</a>
-  </div>
-</div>
-<script>
-  (function(){var c=localStorage.getItem('consent_v1');var m=document.getElementById('cookie-modal');
-   if(c){m.hidden=true;}else{document.documentElement.style.overflow='hidden';}})();
-</script>
-
 <header class="termin-header hero-bg">
   <div class="container">
     <a href="/" style="display:inline-block;margin-bottom:20px;">
@@ -41,7 +25,16 @@
 
 <section style="padding-top:0;">
   <div class="calendly-wrap">
-    <div id="calendly-embed" class="calendly-embed">
+    <div id="calendly-gate" class="calendly-gate" hidden>
+      <div class="calendly-gate__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2.5"></rect><path d="M3 9.5h18M8 2.5v4M16 2.5v4"></path></svg>
+      </div>
+      <div class="calendly-gate__title">Wählen Sie gleich Ihren Termin</div>
+      <p class="calendly-gate__text">Für die Buchung binden wir Calendly ein — einen externen Dienst. Ein Klick lädt den Kalender, und Sie können direkt einen Termin wählen.</p>
+      <button type="button" id="calendly-load" class="btn-cta">Kalender laden &amp; Termin buchen</button>
+      <p class="calendly-gate__hint">Mit dem Laden werden Cookies akzeptiert. Mehr in der <a href="/datenschutz">Datenschutzerklärung</a>.</p>
+    </div>
+    <div id="calendly-embed" class="calendly-embed" hidden>
       <div class="calendly-loading">Kalender wird geladen …</div>
     </div>
   </div>
@@ -56,6 +49,21 @@
   </div>
   <p style="margin:0;">© <span id="year"></span> Belogran GmbH</p>
 </footer>
+
+<!-- Cookie-Banner: nicht-blockierend, EIN Consent-Punkt für die ganze Seite -->
+<div id="cookie-bar" class="cookie-bar" role="region" aria-label="Hinweis zu Cookies" hidden>
+  <div class="cookie-bar__inner">
+    <p class="cookie-bar__text">
+      Wir nutzen Cookies und externe Dienste (u.&nbsp;a. für Video und Terminbuchung),
+      um Ihnen alle Inhalte zu zeigen. Sie entscheiden.
+      <a href="/datenschutz">Mehr in der Datenschutzerklärung</a>
+    </p>
+    <div class="cookie-bar__btns">
+      <button type="button" id="cookie-decline" class="cookie-bar__btn cookie-bar__btn--decline">Ablehnen</button>
+      <button type="button" id="cookie-accept" class="cookie-bar__btn cookie-bar__btn--accept">Akzeptieren</button>
+    </div>
+  </div>
+</div>
 
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script src="/main.js"></script>
