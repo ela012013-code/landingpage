@@ -13,22 +13,6 @@
 </head>
 <body>
 
-<!-- Cookie-Consent-Modal (Widerruf-Zugriff, auch wenn hier idR schon akzeptiert) -->
-<div id="cookie-modal" class="cookie-modal" role="dialog" aria-modal="true" aria-labelledby="cookie-title">
-  <div class="cookie-modal__box">
-    <h2 id="cookie-title" class="cookie-modal__title">Wir respektieren Ihre Privatsphäre</h2>
-    <p>Wir nutzen Cookies, um diese Website bereitzustellen und zu verbessern. Mit „Akzeptieren" stimmen Sie dem zu.</p>
-    <div class="cookie-modal__btns">
-      <button type="button" id="cookie-all" class="btn-cta">Akzeptieren</button>
-    </div>
-    <a href="/datenschutz" class="cookie-modal__link">Mehr in der Datenschutzerklärung</a>
-  </div>
-</div>
-<script>
-  (function(){var c=localStorage.getItem('consent_v1');var m=document.getElementById('cookie-modal');
-   if(c){m.hidden=true;}else{document.documentElement.style.overflow='hidden';}})();
-</script>
-
 <section class="hero-bg" style="padding-top:64px;">
   <div class="container fade-in is-visible">
     <div class="check-icon">
@@ -68,6 +52,21 @@
   </div>
   <p style="margin:0;">© <span id="year"></span> Belogran GmbH</p>
 </footer>
+
+<!-- Cookie-Banner: nicht-blockierend, EIN Consent-Punkt für die ganze Seite -->
+<div id="cookie-bar" class="cookie-bar" role="region" aria-label="Hinweis zu Cookies" hidden>
+  <div class="cookie-bar__inner">
+    <p class="cookie-bar__text">
+      Wir nutzen Cookies und externe Dienste (u.&nbsp;a. für Video und Terminbuchung),
+      um Ihnen alle Inhalte zu zeigen. Sie entscheiden.
+      <a href="/datenschutz">Mehr in der Datenschutzerklärung</a>
+    </p>
+    <div class="cookie-bar__btns">
+      <button type="button" id="cookie-decline" class="cookie-bar__btn cookie-bar__btn--decline">Ablehnen</button>
+      <button type="button" id="cookie-accept" class="cookie-bar__btn cookie-bar__btn--accept">Akzeptieren</button>
+    </div>
+  </div>
+</div>
 
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script src="/main.js"></script>
