@@ -31,6 +31,15 @@ function loadCalendly() {
   document.head.appendChild(s);
 }
 
+/* ---------- Hero-Video (YouTube, nur nach Consent) ---------- */
+function loadYouTube() {
+  const wrap = document.querySelector('.hero-video');
+  if (!wrap || wrap.dataset.loaded) return;
+  wrap.dataset.loaded = '1';
+  const VIDEO_ID = 'ZKYUde9CwYs';
+  wrap.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + VIDEO_ID + '?autoplay=1&playsinline=1" title="Tierra Nua – Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>';
+}
+
 /* ---------- Cookie-Consent: nicht-blockierender Banner ---------- */
 function hideCookieBar() {
   const bar = document.getElementById('cookie-bar');
@@ -41,6 +50,7 @@ function acceptAll() {
   localStorage.setItem('consent_v1', 'all');
   hideCookieBar();
   loadMetaPixel();
+  loadYouTube();
   if (typeof loadVimeo === 'function') loadVimeo();
   if (typeof loadCalendly === 'function') loadCalendly();
 }
@@ -91,6 +101,7 @@ function armBlockedMedia() {
   const c = localStorage.getItem(KEY);
   if (c === 'all') {
     loadMetaPixel();
+    loadYouTube();
     if (typeof loadVimeo === 'function') loadVimeo();
     if (typeof loadCalendly === 'function') loadCalendly();
   } else {
