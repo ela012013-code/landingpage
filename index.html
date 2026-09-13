@@ -13,34 +13,21 @@
 </head>
 <body>
 
-<!-- Cookie-Consent-Modal: blockierend, EIN Consent-Punkt für die ganze Seite -->
-<div id="cookie-modal" class="cookie-modal" role="dialog" aria-modal="true" aria-labelledby="cookie-title">
-  <div class="cookie-modal__box">
-    <h2 id="cookie-title" class="cookie-modal__title">Wir respektieren Ihre Privatsphäre</h2>
-    <p>Wir nutzen Cookies, um diese Website bereitzustellen und zu verbessern. Mit „Akzeptieren" stimmen Sie dem zu.</p>
-    <div class="cookie-modal__btns">
-      <button type="button" id="cookie-all" class="btn-cta">Akzeptieren</button>
-    </div>
-    <a href="/datenschutz" class="cookie-modal__link">Mehr in der Datenschutzerklärung</a>
-  </div>
-</div>
-<script>
-  (function(){var c=localStorage.getItem('consent_v1');var m=document.getElementById('cookie-modal');
-   if(c){m.hidden=true;}else{document.documentElement.style.overflow='hidden';}})();
-</script>
-
 <!-- HERO -->
 <header class="hero hero-bg">
   <div class="container">
+    <img src="/tierra-nua-logo-mit-claim.png" alt="Tierra Nua – Vitaler Boden. Vitaler Rasen. Gesunder Sport." class="hero-logo" loading="eager" width="834" height="182">
     <span class="eyebrow">Kostenloses Rasen-Potenzialgespräch · 30 Minuten</span>
     <h1>Hitze trotzen.<br>Krankheiten vorbeugen.<br>Turniere überstehen.</h1>
 
     <div class="hero-video">
-      <div class="hero-video__placeholder">
-        <div class="hero-video__play">
+      <button type="button" class="hero-video__poster" id="hero-video-poster" aria-label="Video ansehen">
+        <span class="hero-video__play" aria-hidden="true">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><polygon points="6 4 20 12 6 20" fill="#ffffff" stroke="none"/></svg>
-        </div>
-      </div>
+        </span>
+        <span class="hero-video__hint">Video ansehen</span>
+        <span class="hero-video__consent">Mit Klick werden Cookies akzeptiert</span>
+      </button>
       <!-- TODO: Vimeo-Embed von Angela nachreichen -->
     </div>
 
@@ -53,7 +40,7 @@
     <a href="/termin" class="btn-cta">Rasen-Potenzialgespräch sichern</a>
     <p class="micro-text">kostenfrei · unverbindlich · 30 Minuten</p>
 
-    <p class="trust-line">Über 100 betreute Golf- und Sportplätze im DACH-Raum · seit 10 Jahren im Profirasen-Business</p>
+    <p class="trust-line">Über 100 zufriedene Kunden im DACH-Raum · seit 10 Jahren im Profirasen-Business</p>
   </div>
 </header>
 
@@ -149,11 +136,11 @@
 
     <div class="proof-images">
       <figure>
-        <img src="/bilder/vorher-nachher-split-dollarspot.jpg" alt="Vergleich: links gesundes, behandeltes Grün – rechts von Dollarspots befallene Fläche" loading="lazy" width="1344" height="756">
+        <img src="/vorher-nachher-split-dollarspot.jpg" alt="Vergleich: links gesundes, behandeltes Grün – rechts von Dollarspots befallene Fläche" loading="lazy" width="1344" height="756">
         <figcaption>Deutlicher Unterschied: gesunde, widerstandsfähige Fläche (links) im Vergleich zu Dollarspot-Befall (rechts).</figcaption>
       </figure>
       <figure>
-        <img src="/bilder/vorher-nachher-wurzeln-1.jpg" alt="Bodenprofil mit dichtem, tiefem Wurzelwerk auf einem Sportplatz" loading="lazy" width="2000" height="924">
+        <img src="/vorher-nachher-wurzeln-1.jpg" alt="Bodenprofil mit dichtem, tiefem Wurzelwerk auf einem Sportplatz" loading="lazy" width="2000" height="924">
         <figcaption>Dichtes, tiefes Wurzelwerk – die Basis für stressresistenten Hochleistungsrasen.</figcaption>
       </figure>
     </div>
@@ -165,7 +152,7 @@
   <div class="container-wide fade-in">
     <div class="bio-grid">
       <div class="bio-photo">
-        <img src="/bilder/angela-tierra-nua-portrait.jpg" alt="Angela Schadl, Gründerin von Belogran" loading="lazy" width="1333" height="2000">
+        <img src="/angela-tierra-nua-portrait.jpg" alt="Angela Schadl, Gründerin von Belogran" loading="lazy" width="1333" height="2000">
       </div>
       <div>
         <h2>Ihre Ansprechpartnerin</h2>
@@ -305,6 +292,21 @@
   </div>
   <p style="margin:0;">© <span id="year"></span> Belogran GmbH</p>
 </footer>
+
+<!-- Cookie-Banner: nicht-blockierend, EIN Consent-Punkt für die ganze Seite -->
+<div id="cookie-bar" class="cookie-bar" role="region" aria-label="Hinweis zu Cookies" hidden>
+  <div class="cookie-bar__inner">
+    <p class="cookie-bar__text">
+      Wir nutzen Cookies und externe Dienste (u.&nbsp;a. für Video und Terminbuchung),
+      um Ihnen alle Inhalte zu zeigen. Sie entscheiden.
+      <a href="/datenschutz">Mehr in der Datenschutzerklärung</a>
+    </p>
+    <div class="cookie-bar__btns">
+      <button type="button" id="cookie-decline" class="cookie-bar__btn cookie-bar__btn--decline">Ablehnen</button>
+      <button type="button" id="cookie-accept" class="cookie-bar__btn cookie-bar__btn--accept">Akzeptieren</button>
+    </div>
+  </div>
+</div>
 
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script src="/main.js"></script>
