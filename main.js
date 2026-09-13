@@ -24,15 +24,10 @@ function loadCalendly() {
   if (!target) return; // nicht auf /termin
   target.hidden = false;
   calendlyLoaded = true;
+  target.innerHTML = '<div class="calendly-inline-widget" data-url="https://calendly.com/office-belogran/rasen-potenzialgesprach?hide_gdpr_banner=1" style="min-width:320px;height:750px;"></div>';
   const s = document.createElement('script');
   s.src = 'https://assets.calendly.com/assets/external/widget.js';
   s.async = true;
-  s.onload = function () {
-    Calendly.initInlineWidget({
-      url: 'https://calendly.com/office-belogran/rasen-potenzialgesprach',
-      parentElement: target
-    });
-  };
   document.head.appendChild(s);
 }
 
