@@ -1,74 +1,141 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Termin gebucht – Tierra Nua</title>
-<meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/styles.css">
-</head>
-<body>
+/* Tierra Nua – gemeinsames Skript für alle Seiten
+   Consent-Banner (nicht-blockierend), Meta-Pixel (consent-gated), Calendly-Loader, Tracking-Listener, Fade-in */
 
-<section class="hero-bg" style="padding-top:64px;">
-  <div class="container fade-in is-visible">
-    <div class="check-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
-    </div>
-    <span class="eyebrow">Termin gebucht</span>
-    <h1 style="font-size:2rem;">Geschafft – Ihr Rasen-Potenzialgespräch ist reserviert.</h1>
-    <p style="max-width:560px;margin:0 auto;">Wir freuen uns auf das Gespräch mit Ihnen und darauf, gemeinsam den besten Weg zu einem stressresistenten Rasen für Ihren Platz zu finden.</p>
+/* ---------- Meta-Pixel (nur nach Consent) ---------- */
+function loadMetaPixel() {
+  if (window._pixelLoaded) return; window._pixelLoaded = true;
+  var PIXEL_ID = '2181043349103864';
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,
+  'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', PIXEL_ID);
+  fbq('track', 'PageView');
+}
 
-    <ol class="next-steps">
-      <li>
-        <span class="num">1</span>
-        <span>Sie erhalten in Kürze eine <strong>Bestätigungs-E-Mail mit Kalender-Einladung</strong> von unserem Buchungstool – bitte auch im Spam-Ordner prüfen.</span>
-      </li>
-      <li>
-        <span class="num">2</span>
-        <span>Nehmen Sie die Kalender-Einladung an, damit der Termin fest in Ihrem Kalender steht.</span>
-      </li>
-      <li>
-        <span class="num">3</span>
-        <span>Überlegen Sie sich vorab kurz, welche Herausforderungen (Hitze, Krankheitsdruck, Turnierfrequenz) auf Ihrem Platz gerade am größten sind – das hilft uns im Gespräch.</span>
-      </li>
-    </ol>
+/* ---------- Calendly (nur auf /termin vorhanden, nur nach Consent) ---------- */
+let calendlyLoaded = false;
+function loadCalendly() {
+  if (calendlyLoaded) return;
+  const gate = document.getElementById('calendly-gate');
+  if (gate) gate.hidden = true;
+  const target = document.getElementById('calendly-embed');
+  if (!target) return; // nicht auf /termin
+  target.hidden = false;
+  calendlyLoaded = true;
+  const s = document.createElement('script');
+  s.src = 'https://assets.calendly.com/assets/external/widget.js';
+  s.async = true;
+  s.onload = function () {
+    Calendly.initInlineWidget({
+      url: 'https://calendly.com/office-belogran/rasen-potenzialgesprach',
+      parentElement: target
+    });
+  };
+  document.head.appendChild(s);
+}
 
-    <p style="max-width:560px;margin:32px auto 0;font-size:0.9rem;color:#6b6154;">
-      Verschieben oder absagen können Sie jederzeit über die Links in der Bestätigungs-E-Mail.
-    </p>
-  </div>
-</section>
+/* ---------- Cookie-Consent: nicht-blockierender Banner ---------- */
+function hideCookieBar() {
+  const bar = document.getElementById('cookie-bar');
+  if (bar) bar.hidden = true;
+  document.body.classList.remove('consent-open');
+}
+function acceptAll() {
+  localStorage.setItem('consent_v1', 'all');
+  hideCookieBar();
+  loadMetaPixel();
+  if (typeof loadVimeo === 'function') loadVimeo();
+  if (typeof loadCalendly === 'function') loadCalendly();
+}
+/* Ohne Consent werden Video-Poster (Hero + Testimonials mit ID) zu Ein-Klick-Einstiegen. */
+function armBlockedMedia() {
+  const heroPoster = document.getElementById('hero-video-poster');
+  if (heroPoster) { heroPoster.classList.add('is-blocked'); heroPoster.addEventListener('click', acceptAll); }
+  document.querySelectorAll('.testi-video').forEach(function (fig) {
+    if (!/\d{6,}/.test(fig.dataset.vimeo || '')) return;   // keine ID → „Video folgt" bleibt
+    const poster = fig.querySelector('.testi-video__poster');
+    if (!poster) return;
+    const label = poster.querySelector('.testi-video__label');
+    if (label) label.textContent = 'Video ansehen';
+    if (!poster.querySelector('.testi-video__consent')) {
+      const hint = document.createElement('span');
+      hint.className = 'testi-video__consent';
+      hint.textContent = 'Mit Klick werden Cookies akzeptiert';
+      poster.appendChild(hint);
+    }
+    poster.classList.add('is-blocked');
+    poster.setAttribute('role', 'button'); poster.tabIndex = 0; poster.removeAttribute('aria-hidden');
+    const go = function (e) { e.preventDefault(); acceptAll(); };
+    poster.addEventListener('click', go);
+    poster.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') go(e); });
+  });
+}
+(function () {
+  const KEY = 'consent_v1';
+  const bar = document.getElementById('cookie-bar');
+  const gate = document.getElementById('calendly-gate');
+  function showCookieBar() { if (bar) bar.hidden = false; document.body.classList.add('consent-open'); }
+  function decline() {
+    const wasAll = localStorage.getItem(KEY) === 'all';
+    localStorage.setItem(KEY, 'declined');
+    hideCookieBar();
+    /* War vorher akzeptiert, sind die Skripte schon geladen — nur ein Reload
+       entfernt sie wirklich aus dem Speicher (Widerruf, Art. 7 Abs. 3 DSGVO). */
+    if (wasAll) location.reload();
+  }
+  document.getElementById('cookie-accept')?.addEventListener('click', acceptAll);
+  document.getElementById('cookie-decline')?.addEventListener('click', decline);
+  document.getElementById('calendly-load')?.addEventListener('click', acceptAll);
+  /* Footer-Link „Cookie-Einstellungen" zeigt den Banner erneut (Widerruf/Zustimmung jederzeit). */
+  document.querySelectorAll('[data-open-cookie-settings]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); showCookieBar(); });
+  });
 
-<footer>
-  <div class="footer-brand">Tierra Nua – Belogran GmbH</div>
-  <div class="footer-links">
-    <a href="/impressum">Impressum</a>
-    <a href="/datenschutz">Datenschutz</a>
-    <a href="#" data-open-cookie-settings>Cookie-Einstellungen</a>
-  </div>
-  <p style="margin:0;">© <span id="year"></span> Belogran GmbH</p>
-</footer>
+  const c = localStorage.getItem(KEY);
+  if (c === 'all') {
+    loadMetaPixel();
+    if (typeof loadVimeo === 'function') loadVimeo();
+    if (typeof loadCalendly === 'function') loadCalendly();
+  } else {
+    armBlockedMedia();          // unentschieden ODER abgelehnt: Poster als Ein-Klick-Einstieg
+    if (gate) gate.hidden = false;
+    if (!c) showCookieBar();    // Banner nur beim ersten Besuch automatisch, nach „Ablehnen" nicht wieder
+  }
+})();
 
-<!-- Cookie-Banner: nicht-blockierend, EIN Consent-Punkt für die ganze Seite -->
-<div id="cookie-bar" class="cookie-bar" role="region" aria-label="Hinweis zu Cookies" hidden>
-  <div class="cookie-bar__inner">
-    <p class="cookie-bar__text">
-      Wir nutzen Cookies und externe Dienste (u.&nbsp;a. für Video und Terminbuchung),
-      um Ihnen alle Inhalte zu zeigen. Sie entscheiden.
-      <a href="/datenschutz">Mehr in der Datenschutzerklärung</a>
-    </p>
-    <div class="cookie-bar__btns">
-      <button type="button" id="cookie-decline" class="cookie-bar__btn cookie-bar__btn--decline">Ablehnen</button>
-      <button type="button" id="cookie-accept" class="cookie-bar__btn cookie-bar__btn--accept">Akzeptieren</button>
-    </div>
-  </div>
-</div>
+/* ---------- Conversion-Tracking via Calendly postMessage (nur auf /termin) ---------- */
+let leadFired = false;
+window.addEventListener('message', function (e) {
+  if (e.origin !== 'https://calendly.com') return;
+  if (!e.data || e.data.event !== 'calendly.event_scheduled') return;
+  if (leadFired) return; leadFired = true;
 
-<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
-<script src="/main.js"></script>
-</body>
-</html>
+  if (typeof fbq === 'function') {
+    fbq('track', 'Lead', {
+      content_name: 'rasen-potenzialgespraech',
+      eventID: crypto.randomUUID()
+    });
+  }
+  setTimeout(function () { window.location.href = '/danke'; }, 300);
+});
+
+/* ---------- Fade-in beim Scrollen ---------- */
+(function () {
+  const els = document.querySelectorAll('.fade-in');
+  if (!els.length) return;
+  if (!('IntersectionObserver' in window)) {
+    els.forEach((el) => el.classList.add('is-visible'));
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  els.forEach((el) => observer.observe(el));
+})();
