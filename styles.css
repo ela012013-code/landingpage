@@ -492,7 +492,7 @@ footer .footer-brand { font-weight: 700; color: #fff; margin-bottom: 6px; }
 }
 .calendly-embed {
   min-width: 320px;
-  height: 750px;
+  min-height: 750px;
 }
 .calendly-loading {
   display: flex; align-items: center; justify-content: center;
