@@ -14,22 +14,41 @@ function loadMetaPixel() {
   fbq('track', 'PageView');
 }
 
-/* ---------- Calendly (nur auf /termin vorhanden, nur nach Consent) ---------- */
+/* ---------- Calendly (nur auf /termin vorhanden, nur nach Consent) ----------
+   Kein widget.js: Das iframe wird direkt erzeugt (spart einen seriellen
+   Request zu einer zweiten Domain). embed_domain muss deshalb selbst gesetzt
+   werden, sonst erreichen page_height (s.u.) und event_scheduled die Seite nicht. */
 let calendlyLoaded = false;
 function loadCalendly() {
-  if (calendlyLoaded) return;
+  if (calendlyLoaded) return; calendlyLoaded = true;
   const gate = document.getElementById('calendly-gate');
   if (gate) gate.hidden = true;
-  const target = document.getElementById('calendly-embed');
-  if (!target) return; // nicht auf /termin
-  target.hidden = false;
-  calendlyLoaded = true;
-  target.innerHTML = '<div class="calendly-inline-widget" data-url="https://calendly.com/office-belogran/rasen-potenzialgesprach?hide_gdpr_banner=1" style="min-width:320px;height:750px;"></div>';
-  const s = document.createElement('script');
-  s.src = 'https://assets.calendly.com/assets/external/widget.js';
-  s.async = true;
-  document.head.appendChild(s);
+  const box = document.getElementById('calendly-embed');
+  if (!box) return;                         // nur auf der Terminseite vorhanden
+  box.hidden = false;
+
+  const ifr = document.createElement('iframe');
+  ifr.src = 'https://calendly.com/office-belogran/rasen-potenzialgesprach'
+    + '?embed_domain=' + encodeURIComponent(location.host)
+    + '&embed_type=Inline'
+    + '&hide_event_type_details=1&hide_gdpr_banner=1&primary_color=76A632';
+  ifr.title = 'Termin für Rasen-Potenzialgespräch buchen';
+  ifr.style.cssText = 'width:100%;height:100%;border:0;display:block;';
+  box.appendChild(ifr);
 }
+
+/* Calendly meldet seine Inhaltshöhe selbst (kein offizielles API, aber ohne
+   diese Meldung bliebe der Kasten auf der Startgröße stehen).
+   Zwischenwerte beim Laden (z. B. 2px, 26px) werden gefiltert, sonst klappt
+   der Kasten kurz zusammen. Eigener Listener, getrennt vom Conversion-Tracking. */
+window.addEventListener('message', function (e) {
+  if (e.origin !== 'https://calendly.com') return;
+  if (!e.data || e.data.event !== 'calendly.page_height') return;
+  const h = parseInt(e.data.payload && e.data.payload.height, 10);
+  if (!h || h < 300) return;
+  const box = document.getElementById('calendly-embed');
+  if (box) box.style.height = (h + 8) + 'px';   // +8px Puffer gegen Rundungsfehler
+});
 
 /* ---------- Hero-Video (YouTube, nur nach Consent) ---------- */
 function loadYouTube() {
@@ -111,19 +130,30 @@ function armBlockedMedia() {
   }
 })();
 
-/* ---------- Conversion-Tracking via Calendly postMessage (nur auf /termin) ---------- */
-let leadFired = false;
+/* ---------- Conversion-Tracking via Calendly postMessage (nur auf /termin) ----------
+   Gebrandetes Ziel-Event NOW_LEAD + Meta-Standard-Event Lead.
+   Gleiche eventID → CAPI-Dedup-ready. Feuert genau 1×. */
+let nowEventFired = false;
+
+function fireNowConversion() {
+  if (nowEventFired) return;
+  if (typeof fbq !== 'function') return;   // kein Consent → kein Pixel → No-Op
+  nowEventFired = true;
+
+  const eventId = (window.crypto && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : 'now-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+
+  const data = { content_name: 'erstgespraech', content_category: 'now_erstgespraech' };
+
+  fbq('trackCustom', 'NOW_LEAD', data, { eventID: eventId });   // Ziel-Event
+  fbq('track',       'Lead',     data, { eventID: eventId });   // Standard-Signal
+}
+
 window.addEventListener('message', function (e) {
   if (e.origin !== 'https://calendly.com') return;
   if (!e.data || e.data.event !== 'calendly.event_scheduled') return;
-  if (leadFired) return; leadFired = true;
-
-  if (typeof fbq === 'function') {
-    fbq('track', 'Lead', {
-      content_name: 'rasen-potenzialgespraech',
-      eventID: crypto.randomUUID()
-    });
-  }
+  fireNowConversion();
   setTimeout(function () { window.location.href = '/danke'; }, 300);
 });
 
